@@ -20,20 +20,19 @@ clock = Clock()
 cells = [[0 for i in range(BSIZE)] for j in range(BSIZE)]
 paused = False
 zoom = 1
+updateAll = False
 
 def main(): 
     init()
-    draw(cells, display_surface, zoom)
+    draw(cells, display_surface, zoom, True)
 
     while True:
         update(cells)
-        draw(cells, display_surface, zoom)
+        draw(cells, display_surface, zoom, updateAll)
 
         
     
 def init():
-    pygame.display.update()
-
     one = [1, 1, 1]
     cells[10][6:9] = one
     cells[11][6:9] = one
@@ -48,8 +47,11 @@ def init():
 def update(cells):
     global paused
     global zoom
+    global updateAll 
 
-    clock.tick(10)
+    clock.tick(30)
+
+    updateAll = False
 
     if not paused:
         game_loop()
@@ -71,12 +73,14 @@ def update(cells):
 
                 # print(neighbors(cells, 2, 1))
             elif action == 'Z':
-                zoom = zoom
-                # if event.mod == pygame.KMOD_LSHIFT:
-                #     zoom = zoom/2
-                # else:
-                #     zoom *= 2
-                # pygame.display.update()
+                # zoom = zoom
+                if event.mod == pygame.KMOD_LSHIFT:
+                    zoom = zoom - 0.25 if zoom > 0.25 else 0.25
+                else:
+                    zoom += 0.125
+                print(zoom)
+                updateAll == True
+                
             else:
                 print("invalid input")
 

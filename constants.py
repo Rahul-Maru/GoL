@@ -18,7 +18,8 @@ BLUE = (0, 0, 255)
 
 #Game
 # The size of the grid
-BSIZE = 25
+BSIZE = 500
+VISIBLE_CELLS = max(WIDTH, HEIGHT)/20
 
 # The number of neighbors needed for a cell to stay alive
 LRANGE = [2,3]
