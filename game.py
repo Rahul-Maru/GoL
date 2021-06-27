@@ -29,6 +29,7 @@ def main():
     while True:
         update(cells)
         draw(cells, display_surface, zoom, updateAll)
+        if updateAll: print(updateAll)
 
         
     
@@ -79,7 +80,8 @@ def update(cells):
                 else:
                     zoom += 0.125
                 print(zoom)
-                updateAll == True
+                updateAll = True
+                print('z', updateAll, sep='')
                 
             else:
                 print("invalid input")
