@@ -9,7 +9,7 @@ def draw(cells, ds, z = 1, updateAll = False):
     rects = []
     for i in range(int(VISIBLE_CELLS/z)):
         for j in range(int(VISIBLE_CELLS/z)):
-            c = BLACK if cells[j][i] == 0 else WHITE
+            c = BLUE if cells[j][i] == 0 else YELLOW
             rects.append(pygame.Rect((i * 20 * z) + 1, (j * 20 * z) + 1, (20 * z) - 2, (20 * z) - 2))
             pygame.draw.rect(ds, c, rects[-1])
     

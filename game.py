@@ -4,6 +4,8 @@ The main file. It runs the logic behind the game
 
 # Importing other files
 import random
+from pygame import fastevent 
+import math
 
 from pygame.constants import MOUSEMOTION, QUIT
 from pygame.time import Clock
@@ -20,7 +22,9 @@ clock = Clock()
 cells = [[0 for i in range(BSIZE)] for j in range(BSIZE)]
 paused = False
 zoom = 1
+
 updateAll = False
+mouseDown = False
 
 def main(): 
     init()
@@ -49,6 +53,7 @@ def update(cells):
     global paused
     global zoom
     global updateAll 
+    global mouseDown
 
     clock.tick(30)
 
@@ -63,10 +68,25 @@ def update(cells):
             quit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             print('click at ', event.pos)
+            mouseDown = True
+
         elif event.type == pygame.MOUSEBUTTONUP:
             print('release at ', event.pos)
+            mouseDown = False
+
         elif event.type == MOUSEMOTION:
-            print('mouse moved from ', (event.pos[0] - event.rel[0], event.pos[1] - event.rel[1]), ' to ', event.pos)
+            print('mouse moved from ', (event.pos[0] - event.rel[0], event.pos[1] - event.rel[1]), ' to ', event.pos, mouseDown)
+
+            if mouseDown:
+                s = 20 * zoom
+                p = ((math.floor((event.pos[0] - event.rel[0])/s), math.floor((event.pos[1] - event.rel[1])/s)),
+                    (math.floor(event.pos[0]/s), math.floor(event.pos[1]/s)))
+
+                cells[p[0][1]][p[0][0]] = not cells[p[0][1]][p[0][0]]
+                cells[p[1][1]][p[1][0]] = not cells[p[1][1]][p[1][0]]
+
+                if paused: print('uwu')
+
         elif event.type == pygame.KEYDOWN:
             action = pygame.key.name(event.key).upper()
             if action == 'SPACE':
