@@ -12,16 +12,15 @@ def draw(cells, ds, z = 1, relPos = (0, 0), updateAll = False, changed = ['rickr
     #         for j in range (BSIZE):
     #             changed.append([j, i])
     rects = []
-    for i in range(relPos[0], int(VISIBLE_CELLS/z) + relPos[0]):
-        for j in range(relPos[1], int(VISIBLE_CELLS/z) + relPos[1]):
-            
+    for x in range(relPos[0], int(VISIBLE_CELLS/z) + relPos[0]):
+        for y in range(relPos[1], int(VISIBLE_CELLS/z) + relPos[1]):
             try:
-                c = DEAD_COLOR if cells[j][i] == 0 else LIVE_COLOR
+                c = LIVE_COLOR if cells.has(x, y) else DEAD_COLOR
             except IndexError:
-                print(i, j, VISIBLE_CELLS/z)
+                print(x, y, VISIBLE_CELLS/z)
                 raise IndexError
             # if [j, i] in changed: 
-            rects.append(pygame.Rect(((i - relPos[0]) * 20 * z) + 1, ((j - relPos[1]) * 20 * z) + 1, (20 * z) - 2, (20 * z) - 2))
+            rects.append(pygame.Rect(((x - relPos[0]) * 20 * z) + 1, ((y - relPos[1]) * 20 * z) + 1, (20 * z) - 2, (20 * z) - 2))
             try:
                 pygame.draw.rect(ds, c, rects[-1])
             except:

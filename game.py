@@ -4,30 +4,55 @@ The main file. It runs the logic behind the game
 
 # Importing other files
 import math
-from pygame.constants import KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION, QUIT
+from pygame.constants import CONTROLLER_BUTTON_DPAD_LEFT, KEYDOWN, KEYUP, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION, QUIT
 from pygame.time import Clock
 from render import *
 from constants import *
 import time
 import pygame as p
 
+class CellsList:
+    def __init__(self):
+        self.cells = {}
+
+    def has(self, x, y):
+        return x in self.cells.get(y, [])
+
+    def set(self, x, y, value = None):
+        if value == None:
+            value = not self.has(x, y)
+        if value:
+            row = self.cells.setdefault(y, set())
+            if x not in row:
+                row.add(x)
+        else:
+            try:
+                self.cells[y].remove(x)
+            except KeyError:
+                pass
+            else:
+                if not self.cells[y]:
+                    del self.cells[y]
+
+    def __iter__(self):
+        for y in self.cells:
+            for x in self.cells[y]:
+                yield (x, y)
+
 def main(): 
-    init()
     draw(cells, display_surface, zoom, relPos, True)
 
     while True:
-        t = time.time()
-        changed = update()
+        # t = time.time()
+        update()
         # print('updt:', time.time() - t)
 
-        t = time.time()
-        draw(cells, display_surface, zoom, relPos, updateAll, changed)
-        # print('draw:', time.time() - t, '\n ----------')
-
-        
+        # t = time.time()
+        draw(cells, display_surface, zoom, relPos, updateAll)
+        # print('draw:', time.time() - t, '\n ----------')  
     
-def init():
-    one = [1, 1, 1]
+# def init():
+    # one = [1, 1, 1]
     # cells[100][60:63] = one
     # cells[101][60:63] = one
     # cells[102][60:63] = one
@@ -36,7 +61,8 @@ def init():
     # cells[11][12:15] = one
     # cells[12][12:15] = one
 
-    return cells
+    # return cells
+    # pass
 
 def update():
     global cells
@@ -45,124 +71,105 @@ def update():
     global updateAll 
     global clickPos
     global relPos
+    global dx
+    global dy
 
     changed = []
 
-    clock.tick(30)
+    clock.tick(10)
 
     updateAll = False
 
     if not paused:
-        changed = game_loop()
+        advance()
+    else:
+        pygame.display.set_caption('Game of Life (paused)')
+
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             quit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            print('click at ', event.pos)
             clickPos = event.pos
 
         elif event.type == pygame.MOUSEBUTTONUP:
-            print('release at ', event.pos)
             s = 20 * zoom
             p = ((math.floor(clickPos[0]/s + relPos[0]), math.floor(clickPos[1]/s + relPos[1])),
                 (math.floor(event.pos[0]/s + relPos[0]), math.floor(event.pos[1]/s + relPos[1])))
-            print(event.pos, clickPos, (event.pos[0]/s, event.pos[1]/s), (clickPos[0]/s, clickPos[1]/s), relPos, p[1], p[0])
 
-            cells[p[0][1]][p[0][0]] = not cells[p[0][1]][p[0][0]]
-            if p[0] != p[1]: cells[p[1][1]][p[1][0]] = not cells[p[1][1]][p[1][0]]
-
-
-        # elif event.type == MOUSEMOTION:
-            # print('mouse moved from ', (event.pos[0] - event.rel[0], event.pos[1] - event.rel[1]), ' to ', event.pos)
+            cells.set(p[0][0], p[0][1])
+            if p[0] != p[1]: cells.set(p[1][0], p[1][1])
 
         elif event.type == pygame.KEYDOWN:
             action = pygame.key.name(event.key).lower()
             if action == 'space':
                 paused = not paused
-
-                # print(neighbors(cells, 2, 1))
+            elif action == 'n':
+                advance()
             elif action == 'z':
-                # zoom = zoom
+                oldZ = zoom
                 if event.mod == pygame.KMOD_LSHIFT:
                     zoom = zoom - 0.125 if zoom > 0.25 else 0.25
                 else:
                     zoom += 0.125
                 print(zoom)
                 updateAll = True
-                # print('z', updateAll, sep='')
+                for i in 0,1: relPos[i] += math.floor((VISIBLE_CELLS/oldZ - VISIBLE_CELLS/zoom)/2)
             elif action == 'c':
-                # if event.mod == pygame.KMOD_CTRL:
-                cells = [[0 for i in range(BSIZE)] for j in range(BSIZE)]
+                cells = CellsList()
+            elif action == 'q':
+                pygame.quit()
+                quit()
             elif action in ARROWS:
                 if action == 'up':
-                    if relPos[1] > 0: relPos[1] -= 1 
+                    dy -= 1 
                 elif action == 'down':
-                    if relPos[1] < BSIZE - VISIBLE_CELLS/zoom: relPos[1] += 1 
+                    dy += 1 
                 elif action == 'left':
-                    if relPos[0] > 0: relPos[0] -= 1 
-                else: 
-                    if relPos[0] < BSIZE - VISIBLE_CELLS/zoom: relPos[0] += 1
-                print(relPos) 
+                    dx -= 1 
+                elif action == 'right': 
+                    dx += 1
+                else:
+                    print('wh-wh-wa-hu. wuh-hu-wha? ph-bl-bwhuh?')
                 # updateAll = True
             else:
                 print(action, "is an invalid input")
-    return changed
-
-def game_loop():
-    t = time.time()
-    # print(cells[100][233])
-    newCells = resurrect(cells)
-    dedCells = kill(cells)
-    # print('calc:', time.time() - t)
-
-    for cell in newCells:
-        y = cell[0]
-        x = cell[1]
-        cells[y][x] = 1
-
-    for cell in dedCells:
-        y = cell[0]
-        x = cell[1]
-        cells[y][x] = 0
+        elif event.type == KEYUP:
+                action = pygame.key.name(event.key).lower()
+                if action in ARROWS:
+                    dx = 0 
+                    dy = 0
+    relPos[0] += dx
+    relPos[1] += dy
+    # return changed
     
-    return newCells + dedCells
-    
-def resurrect(cells):
-    living = []
-    for y in range(BSIZE):
-        for x in range(BSIZE):
-            if cells[y][x] == 0: 
-                n = neighbors(cells, y, x)
-                if n in RRANGE:
-                    living.append((y, x))
-    return living
+def advance():
+    global cells
+    """Advances the simulation to the next generation"""
+    processed = CellsList()
+    newlist = CellsList()
+    for cell in cells.__iter__():
+        x = cell[0]
+        y = cell[1]
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if (x + i, y + j) in processed:
+                    continue
+                processed.set(x + i, y + j, True)
+                if advance_cell(cells, x + i, y + j):
+                    newlist.set(x + i, y + j, True)
+    cells = newlist
 
-def kill(cells):
-    dead = []
-    for y in range(BSIZE):
-        for x in range(BSIZE):
-            if cells[y][x] == 1: 
-                l = neighbors(cells, y, x)
-                if l not in LRANGE:
-                    dead.append((y, x))
-    return dead
-
-def neighbors(cells, y, x):
-    """Returns how many of the cell at x, y's neighbors are alive."""
+def advance_cell(cells, x, y):
+    """Returns the state of the cell at x, y"""
     lcount = 0
 
-    for i in range(y-1, y+2):
-        for j in range(x-1, x+2):
-            if not ((i < 0 or i >= BSIZE) or (j < 0 or j >= BSIZE)):
-                # print('try')
-                if not (i == y and j == x):
-                    if cells[i][j] == 1:
-                        # print('if2')
-                        lcount += 1
-            # print(i,j,lcount,cells[i][j])
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if i != 0 or j != 0:
+                if cells.has(x + i, y + j): lcount += 1
             
-    return lcount
+    return True if lcount in (SRANGE if cells.has(x, y) else BRANGE) else False
 
 if __name__ == "__main__":
     p.init()
@@ -171,13 +178,16 @@ if __name__ == "__main__":
     display_surface = p.display.set_mode(AREA, flags, 16)
     display_surface.fill(GRAY)
 
-    pygame.event.set_allowed([QUIT, KEYDOWN, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
+    pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
 
     clock = Clock()
-    cells = [[1 if i == 0 or j == 0 or i == 299 or j == 299 else 0 for i in range(BSIZE)] for j in range(BSIZE)]
+    cells = CellsList()
+    # [[1 if i == 0 or j == 0 or i == 299 or j == 299 else 0 for i in range(BSIZE)] for j in range(BSIZE)]
     paused = True
     zoom = 1
-    relPos = [230, 0]
+    relPos = [0, 0]
+    dx = 0
+    dy = 0
 
     updateAll = False
     clickPos = (0,0)
