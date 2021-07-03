@@ -57,6 +57,7 @@ def update():
 
     # These lines ensure that when these variables are called, they link to the global ones
     global cells
+    global oldCells
     global paused
     global zoom
     global updateAll 
@@ -98,6 +99,9 @@ def update():
             cells.set(p[0][0], p[0][1])
             # Makes sure that we don't double count
             if p[0] != p[1]: cells.set(p[1][0], p[1][1])
+
+            # Updating the saved cells list
+            oldCells = cells
 
         elif event.type == pygame.KEYDOWN:
             # Handles key clicks
@@ -147,6 +151,7 @@ def update():
                     else:
                         # If there is no error
                         valid = paused = True
+
                         titleString = F"Game of Life (B{''.join(map(str, BRange))}/S{''.join(map(str, SRange))}"
                         pygame.display.set_caption(F"{titleString}, paused)")
                         
@@ -156,12 +161,14 @@ def update():
             elif action == 'z':
                 # Zooms in/out
                 oldZ = zoom
+                updateAll = True
 
                 if event.mod == pygame.KMOD_LSHIFT:
-                    zoom = zoom - 0.125 if zoom > 0.375 else 0.375
+                    if zoom > 0.375: 
+                        zoom -= 0.125  
+                    else: updateAll = False
                 else:
                     zoom += 0.125
-                updateAll = True
 
                 # Centers the screen on where it was previouly centered, as opposed to zooming in on the top-left
                 for i in 0,1: relPos[i] += math.floor((VISIBLE_CELLS/oldZ - VISIBLE_CELLS/zoom)/2)
@@ -169,6 +176,14 @@ def update():
             elif action == 'c':
                 # Kills all the cells
                 cells = CellsList()
+            
+            elif action == 's':
+                # Saves the current version of the grid
+                oldCells = cells
+
+            elif action == 'b':
+                # Resets the grid to the last version
+                cells = oldCells
 
             elif action == 'q' or action == 'escape' or (action == 'w' and event.mod == pygame.KMOD_LCTRL):
                 # More quit events
@@ -239,9 +254,10 @@ if __name__ == "__main__":
     display_surface.fill(GRAY)
     pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
 
-    # Vataible decleration
+    # Vataible declerations
     clock = Clock()
     cells = CellsList()
+    oldCells = CellsList()
 
     BRange = [3]
     SRange = [2, 3]
@@ -257,12 +273,19 @@ if __name__ == "__main__":
     dy = 0
  
     # Tutorial
+    print("\n\033[1;37;40mThe Game of Life\033[0;37;40m, also known simply as \033[1;37;40mLife\033[0;37;40m or \033[1;37;40mGoL\033[0;37;40m, is a cellular automaton devised by the British mathematician John Horton Conway in1970.", end=' ')
+    print("It is a zero-player game played on a 2d grid. A zero-player game is one whose evolution is determined by its initial state,")
+    print("requiring no further input. One interacts with the Game of Life by creating an initial configuration of 'cells' (squares on the grid")
+    print("which can either be alive or dead) and observing how it evolves. There are 2 rules. The birth rule, which states that dead cells with 3 out of", end=' ')
+    print("8 neighbors come to life (written as B3), and the Surival rule, which states that any living cell with 2 or 3 live neighbors stays alive (written as S23).")
     print("""
         \033[1;37;40mChange the state of a cell\033[0;37;40m by left-clicking on it
         \033[1;37;40mPause/resume\033[0;37;40m by pressing space
         \033[1;37;40mZoom in\033[0;37;40m by pressing 'Z'
         \033[1;37;40mZoom out\033[0;37;40m by pressing 'Shift' + 'Z'
         \033[1;37;40mScroll\033[0;37;40m by pressing arrow keys
+        \033[1;37;40mLoad the last saved or changed version\033[0;37;40m of the board by pressing 'B'
+        \033[1;37;40mSave the current state of the board\033[0;37;40m by pressing 'S'
         \033[1;37;40mChange the birth and survival rules\033[0;37;40m by pressing 'R'
         \033[1;37;40mClear the board\033[0;37;40m by pressing 'C'
         \033[1;37;40mAdvance the simulation by one generation\033[0;37;40m by pressing 'N'
