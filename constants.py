@@ -31,15 +31,5 @@ DEAD_COLOR = DARK_BLUE
 LIVE_COLOR = GOLD
 
 #Game
-
 # The number of visible cells with default zoom
 VISIBLE_CELLS = max(WIDTH,HEIGHT)/20 + 2
-
-# The number of neighbors needed for a dead cell to respawn
-BRANGE = [3]
-
-# The number of neighbors needed for a cell to stay alive
-SRANGE = [2, 3]
-
-# A flag for debugging
-dbg = 0
