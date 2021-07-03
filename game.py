@@ -2,12 +2,13 @@
 The main file. It runs the logic behind the game and executes it all
 """
 
-# Importing other files
-import math
-from typing import OrderedDict
+# Importing files
 import pygame
+import math
+import colorama
 from pygame.constants import KEYDOWN, KEYUP, MOUSEBUTTONDOWN, MOUSEBUTTONUP, QUIT
 from pygame.time import Clock
+from typing import OrderedDict
 from render import *
 from constants import *
 
@@ -124,30 +125,33 @@ def update():
 
                 # Goes on until a valid input is recieved
                 while not valid:
-                    SRange = input('\033[0;37;40mHow many neighbors should a living cell have to survive (n1, n2, ...): ')
                     BRange = input('How many neighbors should a dead cell have to be born (n1, n2...): ')
+                    SRange = input('How many neighbors should a living cell have to survive (n1, n2, ...): ')
 
                     # Splits, sorts, and removes duplicates from the inputs
-                    SRange = list(OrderedDict.fromkeys(SRange.split(', ')))
-                    SRange.sort()
-
                     BRange = list(OrderedDict.fromkeys(BRange.split(', ')))
                     BRange.sort()
 
+                    SRange = list(OrderedDict.fromkeys(SRange.split(', ')))
+                    SRange.sort()
+
                     # Weeding out errors
                     try:
-                        for i in range(len(SRange)):
-                            n = SRange[i] = int(SRange[i])
-                            if n > 8 or n < 0:
-                                raise ValueError
                         for i in range(len(BRange)):
-                            n = BRange[i] = int(BRange[i])
-                            if n > 8 or n <= 0:
-                                raise ValueError
+                            if BRange[i] !='': 
+                                n = BRange[i] = int(BRange[i])
+                                if n > 8 or n <= 0:
+                                    raise ValueError
+                        for i in range(len(SRange)):
+                            if SRange[i] !='': 
+                                n = SRange[i] = int(SRange[i])
+                                if n > 8 or n < 0:
+                                    raise ValueError
     
                     except ValueError:
                         # Red error message!
-                        print('\033[1;31;40mInvalid input')
+                        print(colorama.Fore.RED + 'Invalid input')
+                        print(colorama.Style.RESET_ALL)
                     else:
                         # If there is no error
                         valid = paused = True
@@ -247,6 +251,9 @@ def advance_cell(cells, x, y):
 
 if __name__ == "__main__":
     """Starts the code"""
+    # Colorama fixes the color-code issues on windows
+    colorama.init()
+
     # Sets up the display
     pygame.init()
     flags = pygame.DOUBLEBUF
@@ -273,23 +280,23 @@ if __name__ == "__main__":
     dy = 0
  
     # Tutorial
-    print("\n\033[1;37;40mThe Game of Life\033[0;37;40m, also known simply as \033[1;37;40mLife\033[0;37;40m or \033[1;37;40mGoL\033[0;37;40m, is a cellular automaton devised by the British mathematician John Horton Conway in1970.", end=' ')
+    print("\nThe Game of Life, also known simply as Life or \033[1;37;40mGoL, is a cellular automaton devised by the British mathematician John Horton Conway in1970.", end=' ')
     print("It is a zero-player game played on a 2d grid. A zero-player game is one whose evolution is determined by its initial state,")
     print("requiring no further input. One interacts with the Game of Life by creating an initial configuration of 'cells' (squares on the grid")
     print("which can either be alive or dead) and observing how it evolves. There are 2 rules. The birth rule, which states that dead cells with 3 out of", end=' ')
     print("8 neighbors come to life (written as B3), and the Surival rule, which states that any living cell with 2 or 3 live neighbors stays alive (written as S23).")
-    print("""
-        \033[1;37;40mChange the state of a cell\033[0;37;40m by left-clicking on it
-        \033[1;37;40mPause/resume\033[0;37;40m by pressing space
-        \033[1;37;40mZoom in\033[0;37;40m by pressing 'Z'
-        \033[1;37;40mZoom out\033[0;37;40m by pressing 'Shift' + 'Z'
-        \033[1;37;40mScroll\033[0;37;40m by pressing arrow keys
-        \033[1;37;40mLoad the last saved or changed version\033[0;37;40m of the board by pressing 'B'
-        \033[1;37;40mSave the current state of the board\033[0;37;40m by pressing 'S'
-        \033[1;37;40mChange the birth and survival rules\033[0;37;40m by pressing 'R'
-        \033[1;37;40mClear the board\033[0;37;40m by pressing 'C'
-        \033[1;37;40mAdvance the simulation by one generation\033[0;37;40m by pressing 'N'
-        \033[1;37;40mQuit the app\033[0;37;40m by clicking the red x, pressing 'Q', 'Escape', or 'Ctrl' + 'W'
+    print(F"""
+        Change the state of a cellby left-clicking on it
+        Pause/resume by pressing space
+        Zoom in by pressing 'Z'
+        Zoom out by pressing 'Shift' + 'Z'
+        Scroll by pressing arrow keys
+        Load the last saved or changed version of the board by pressing 'B'
+        Save the current state of the board by pressing 'S'
+        Change the birth and survival rules by pressing 'R'
+        Clear the board by pressing 'C'
+        Advance the simulation by one generation by pressing 'N'
+        Quit the app by clicking the red x, pressing 'Q', 'Escape', or 'Ctrl' + 'W'
         """)
         
     main()
