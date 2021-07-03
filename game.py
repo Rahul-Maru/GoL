@@ -4,12 +4,12 @@ The main file. It runs the logic behind the game
 
 # Importing other files
 import math
-from pygame.constants import CONTROLLER_BUTTON_DPAD_LEFT, KEYDOWN, KEYUP, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION, QUIT
+import pygame
+from pygame.constants import KEYDOWN, KEYUP, MOUSEBUTTONDOWN, MOUSEBUTTONUP, QUIT
 from pygame.time import Clock
 from render import *
 from constants import *
-import time
-import pygame as p
+import sys
 
 class CellsList:
     def __init__(self):
@@ -43,26 +43,8 @@ def main():
     draw(cells, display_surface, zoom, relPos, True)
 
     while True:
-        # t = time.time()
         update()
-        # print('updt:', time.time() - t)
-
-        # t = time.time()
         draw(cells, display_surface, zoom, relPos, updateAll)
-        # print('draw:', time.time() - t, '\n ----------')  
-    
-# def init():
-    # one = [1, 1, 1]
-    # cells[100][60:63] = one
-    # cells[101][60:63] = one
-    # cells[102][60:63] = one
-
-    # cells[10][12:15] = one
-    # cells[11][12:15] = one
-    # cells[12][12:15] = one
-
-    # return cells
-    # pass
 
 def update():
     global cells
@@ -76,12 +58,13 @@ def update():
 
     changed = []
 
-    clock.tick(10)
+    clock.tick(12)
 
     updateAll = False
 
     if not paused:
         advance()
+        pygame.display.set_caption('Game of Life')
     else:
         pygame.display.set_caption('Game of Life (paused)')
 
@@ -117,7 +100,7 @@ def update():
                 for i in 0,1: relPos[i] += math.floor((VISIBLE_CELLS/oldZ - VISIBLE_CELLS/zoom)/2)
             elif action == 'c':
                 cells = CellsList()
-            elif action == 'q':
+            elif action == 'q' or action == 'escape' or (action == 'w' and event.mod == pygame.KMOD_LCTRL):
                 pygame.quit()
                 quit()
             elif action in ARROWS:
@@ -172,18 +155,18 @@ def advance_cell(cells, x, y):
     return True if lcount in (SRANGE if cells.has(x, y) else BRANGE) else False
 
 if __name__ == "__main__":
-    p.init()
+    pygame.init()
 
     flags = pygame.DOUBLEBUF
-    display_surface = p.display.set_mode(AREA, flags, 16)
+    display_surface = pygame.display.set_mode(AREA, flags, 16)
     display_surface.fill(GRAY)
 
-    pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
+    pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
 
     clock = Clock()
     cells = CellsList()
     # [[1 if i == 0 or j == 0 or i == 299 or j == 299 else 0 for i in range(BSIZE)] for j in range(BSIZE)]
-    paused = True
+    paused = False
     zoom = 1
     relPos = [0, 0]
     dx = 0
@@ -191,5 +174,14 @@ if __name__ == "__main__":
 
     updateAll = False
     clickPos = (0,0)
+
+    print('''
+Press: arrows to scroll
+       space to pause/resume
+       n to advance by one generation
+       z/shift + z to zoom in/out
+       c to clear the grid
+       left click to toggle the state of a cell
+       Esc/q/ctrl + w to exit''')
         
     main()
