@@ -273,6 +273,7 @@ if __name__ == "__main__":
 
     updateAll = False
     paused = True
+    gen = 0
     zoom = 1
     relPos = [0, 0]
     clickPos = (0,0)
@@ -280,23 +281,25 @@ if __name__ == "__main__":
     dy = 0
  
     # Tutorial
-    print("\nThe Game of Life, also known simply as Life or \033[1;37;40mGoL, is a cellular automaton devised by the British mathematician John Horton Conway in1970.", end=' ')
-    print("It is a zero-player game played on a 2d grid. A zero-player game is one whose evolution is determined by its initial state,")
-    print("requiring no further input. One interacts with the Game of Life by creating an initial configuration of 'cells' (squares on the grid")
-    print("which can either be alive or dead) and observing how it evolves. There are 2 rules. The birth rule, which states that dead cells with 3 out of", end=' ')
-    print("8 neighbors come to life (written as B3), and the Surival rule, which states that any living cell with 2 or 3 live neighbors stays alive (written as S23).")
+    msg = ["\nThe Game of Life, also known simply as Life or \033[1;37;40mGoL, is a cellular automaton devised by the British mathematician John Horton Conway in 1970.",
+    "It is a zero-player game played on a 2d grid. A zero-player game is one whose evolution is determined by its initial state,",
+    "requiring no further input. One interacts with the Game of Life by creating an initial configuration of 'cells' (squares on the grid",
+    "which can either be alive or dead) and observing how it evolves. There are 2 rules. The birth rule, which states that dead cells with 3 out of",
+    "8 neighbors come to life (written as B3), and the Surival rule, which states that any living cell with 2 or 3 live neighbors stays alive (written as S23)."]
+    print(msg[0], msg[1], msg[2], msg[3], msg[4])
+    print()
     print(F"""
-        Change the state of a cellby left-clicking on it
-        Pause/resume by pressing space
-        Zoom in by pressing 'Z'
-        Zoom out by pressing 'Shift' + 'Z'
-        Scroll by pressing arrow keys
-        Load the last saved or changed version of the board by pressing 'B'
-        Save the current state of the board by pressing 'S'
-        Change the birth and survival rules by pressing 'R'
-        Clear the board by pressing 'C'
-        Advance the simulation by one generation by pressing 'N'
-        Quit the app by clicking the red x, pressing 'Q', 'Escape', or 'Ctrl' + 'W'
+        {'Change the state of a cell'.upper()} by left-clicking on it
+        {'Pause/resume'.upper()}  by pressing space
+        {'Zoom in'.upper()} by pressing 'Z'
+        {'Zoom out'.upper()} by pressing 'Shift' + 'Z'
+        {'Scroll'.upper()} by pressing arrow keys
+        {'Load the last saved or changed version of the board'.upper()} by pressing 'B'
+        {'Save the current state of the board'.upper()} by pressing 'S'
+        {'Change the birth and survival rules'.upper()} by pressing 'R'
+        {'Clear the board'.upper()} by pressing 'C'
+        {'Advance the simulation by one generation'.upper()} by pressing 'N'
+        {'Quit the app'.upper()} by clicking the red x, pressing 'Q', 'Escape', or 'Ctrl' + 'W'
         """)
         
     main()
