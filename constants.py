@@ -2,8 +2,8 @@
 This file contains a list of variables used by other files.
 """
 #Setup
-WIDTH = 640
-HEIGHT = 640
+WIDTH = 720
+HEIGHT = WIDTH
 AREA = (HEIGHT, WIDTH)
 
 #Keys
@@ -32,4 +32,4 @@ LIVE_COLOR = GOLD
 
 #Game
 # The number of visible cells with default zoom
-VISIBLE_CELLS = max(WIDTH,HEIGHT)/20 + 2
+VISIBLE_CELLS = int(max(WIDTH,HEIGHT)/20 + 2)

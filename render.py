@@ -8,6 +8,7 @@ import pygame
 def draw(cells, ds, z = 1, relPos = (0, 0), updateAll = False, changed = None): 
     """The main code to draw the grid"""
     rects = []
+
     # Iterates through the visible portion of the grid
     for x in range(relPos[0], int(VISIBLE_CELLS/z) + relPos[0]):
         for y in range(relPos[1], int(VISIBLE_CELLS/z) + relPos[1]):

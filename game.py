@@ -69,6 +69,8 @@ def update():
     global dy
     global SRange
     global BRange
+    global gen
+    global oldGen
 
     # Keeps the game running under the given fps
     clock.tick(12)
@@ -78,6 +80,11 @@ def update():
     if not paused:
         # The main logic happens here
         advance()
+        pygame.display.set_caption(F"{titleString}). Generation: {gen}")
+    else:
+        pygame.display.set_caption(F"{titleString}, paused). Generation: {gen}")
+
+
 
     for event in pygame.event.get():
         # Event handling
@@ -103,6 +110,7 @@ def update():
 
             # Updating the saved cells list
             oldCells = cells
+            oldGen = gen
 
         elif event.type == pygame.KEYDOWN:
             # Handles key clicks
@@ -111,13 +119,6 @@ def update():
             if action == 'space':
                 # Pauses/resumes the game
                 paused = not paused
-                
-                # Changes the caption accordingly
-                if paused:
-                    pygame.display.set_caption(F"{titleString}, paused)")
-                else:
-                    pygame.display.set_caption(F"{titleString})")
-
             elif action == 'r':
                 # Prompts the user to change the B/S parameters
                 valid = False
@@ -157,7 +158,7 @@ def update():
                         valid = paused = True
 
                         titleString = F"Game of Life (B{''.join(map(str, BRange))}/S{''.join(map(str, SRange))}"
-                        pygame.display.set_caption(F"{titleString}, paused)")
+                        pygame.display.set_caption(F"{titleString}, paused). Generation: {gen}")
                         
             elif action == 'n':
                 # Advances the simulation by only one generation when paused
@@ -180,14 +181,17 @@ def update():
             elif action == 'c':
                 # Kills all the cells
                 cells = CellsList()
+                gen = 0
             
             elif action == 's':
                 # Saves the current version of the grid
                 oldCells = cells
+                oldGen = gen
 
             elif action == 'b':
                 # Resets the grid to the last version
                 cells = oldCells
+                gen = oldGen
 
             elif action == 'q' or action == 'escape' or (action == 'w' and event.mod == pygame.KMOD_LCTRL):
                 # More quit events
@@ -217,6 +221,7 @@ def update():
 def advance():
     """Advances the simulation to the next generation"""
     global cells
+    global gen
     processed = CellsList()
     newlist = CellsList()
 
@@ -235,6 +240,7 @@ def advance():
                 if advance_cell(cells, x + i, y + j):
                     newlist.set(x + i, y + j, True)
     # Update our list
+    gen += 1
     cells = newlist
 
 def advance_cell(cells, x, y):
@@ -264,21 +270,25 @@ if __name__ == "__main__":
     # Vataible declerations
     clock = Clock()
     cells = CellsList()
-    oldCells = CellsList()
-
-    BRange = [3]
-    SRange = [2, 3]
-    titleString = F"Game of Life (B{''.join(map(str, BRange))}/S{''.join(map(str, SRange))}"
-    pygame.display.set_caption(F"{titleString}, paused, check terminal for instructions)")
+    for i in range(9):
+        for j in range(3):
+            if i not in range(3, 6): cells.set(i, j) 
+    oldCells = cells
 
     updateAll = False
     paused = True
     gen = 0
+    oldGen = 0
     zoom = 1
-    relPos = [0, 0]
+    relPos = [VISIBLE_CELLS - 4, VISIBLE_CELLS - 1]
     clickPos = (0,0)
     dx = 0
     dy = 0
+
+    BRange = [3]
+    SRange = [2, 3]
+    titleString = F"Game of Life (B{''.join(map(str, BRange))}/S{''.join(map(str, SRange))}"
+    pygame.display.set_caption(F"{titleString}, paused, check terminal for instructions). Generation: {gen}")
  
     # Tutorial
     msg = ["\nThe Game of Life, also known simply as Life or \033[1;37;40mGoL, is a cellular automaton devised by the British mathematician John Horton Conway in 1970.",
