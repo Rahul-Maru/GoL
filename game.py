@@ -71,6 +71,7 @@ def update():
     global BRange
     global gen
     global oldGen
+    global checkTerminal
 
     # Keeps the game running under the given fps
     clock.tick(12)
@@ -82,7 +83,7 @@ def update():
         advance()
         pygame.display.set_caption(F"{titleString}). Generation: {gen}")
     else:
-        pygame.display.set_caption(F"{titleString}, paused). Generation: {gen}")
+        if not checkTerminal: pygame.display.set_caption(F"{titleString}, paused). Generation: {gen}")
 
 
 
@@ -119,12 +120,14 @@ def update():
             if action == 'space':
                 # Pauses/resumes the game
                 paused = not paused
+                checkTerminal = False
+
             elif action == 'r':
                 # Prompts the user to change the B/S parameters
                 valid = False
                 pygame.display.set_caption('Awaiting input')
 
-                # Goes on until a valid input is recieved
+                # Goes on until a valid input is received
                 while not valid:
                     BRange = input('How many neighbors should a dead cell have to be born (n1, n2...): ')
                     SRange = input('How many neighbors should a living cell have to survive (n1, n2, ...): ')
@@ -272,7 +275,7 @@ if __name__ == "__main__":
     cells = CellsList()
     for i in range(9):
         for j in range(3):
-            if i not in range(3, 6): cells.set(i, j) 
+            if i not in range(3, 6): cells.set(i, j)
     oldCells = cells
 
     updateAll = False
@@ -280,13 +283,15 @@ if __name__ == "__main__":
     gen = 0
     oldGen = 0
     zoom = 1
-    relPos = [VISIBLE_CELLS - 4, VISIBLE_CELLS - 1]
+    relPos = [-int((VISIBLE_CELLS/2) - 4), -int((VISIBLE_CELLS/2) - 1)]
     clickPos = (0,0)
     dx = 0
     dy = 0
 
     BRange = [3]
     SRange = [2, 3]
+
+    checkTerminal = True
     titleString = F"Game of Life (B{''.join(map(str, BRange))}/S{''.join(map(str, SRange))}"
     pygame.display.set_caption(F"{titleString}, paused, check terminal for instructions). Generation: {gen}")
  
@@ -296,8 +301,7 @@ if __name__ == "__main__":
     "requiring no further input. One interacts with the Game of Life by creating an initial configuration of 'cells' (squares on the grid",
     "which can either be alive or dead) and observing how it evolves. There are 2 rules. The birth rule, which states that dead cells with 3 out of",
     "8 neighbors come to life (written as B3), and the Surival rule, which states that any living cell with 2 or 3 live neighbors stays alive (written as S23)."]
-    print(msg[0], msg[1], msg[2], msg[3], msg[4])
-    print()
+    print(msg[0], msg[1], msg[2], msg[3], msg[4], end='\n\n')
     print(F"""
         {'Change the state of a cell'.upper()} by left-clicking on it
         {'Pause/resume'.upper()}  by pressing space
@@ -306,9 +310,9 @@ if __name__ == "__main__":
         {'Scroll'.upper()} by pressing arrow keys
         {'Load the last saved or changed version of the board'.upper()} by pressing 'B'
         {'Save the current state of the board'.upper()} by pressing 'S'
-        {'Change the birth and survival rules'.upper()} by pressing 'R'
         {'Clear the board'.upper()} by pressing 'C'
         {'Advance the simulation by one generation'.upper()} by pressing 'N'
+        {'Change the birth and survival rules'.upper()} by pressing 'R'
         {'Quit the app'.upper()} by clicking the red x, pressing 'Q', 'Escape', or 'Ctrl' + 'W'
         """)
         
